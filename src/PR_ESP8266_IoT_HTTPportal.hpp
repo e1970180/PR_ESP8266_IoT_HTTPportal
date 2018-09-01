@@ -12,25 +12,32 @@ extern "C" {
   #include "user_interface.h"
 }
 
-#include "PR_GetTau.hpp"
-			/////#include "PR_IoT_HTTP_ConfigPortalPages.hpp"
+#include <PR_GetTau.hpp>
 
-#include "PR_HTMLpageConstructor.hpp"
+#include <PR_HTMLpageConstructor.hpp>
 
 class PR_IoT_HTTPportalClass {
 	public:
-		//PR_IoT_HTTPportalClass();
 		
 		bool	start();
 		bool	stop();
 			
 		void	loop();
 		
-		void	sendHtml(String& page) 
+		void	sendHtml(String& page); 
 		
-		void	_setupHandles();
+		
+		
+		void	handleNotFound();
+		void	handleRoot();
+		void	handleReset();
+		void	handleInfo();
+		void	handleExit();
+		
 				
 	protected:
+		
+		void	_setupHandles();
 		
 		std::unique_ptr<DNSServer>        dnsServer;
 		std::unique_ptr<ESP8266WebServer> httpServer;
@@ -100,23 +107,23 @@ void PR_IoT_HTTPportalClass::sendHtml(String& page) {
 void	PR_IoT_HTTPportalClass::_setupHandles() {
 
 	// Setup common portal pages:
-	httpServer->onNotFound (	std::bind(&handleNotFound, this) );
-	httpServer->on("/",			std::bind(&handleRoot, this) );
-	httpServer->on("/reset",	std::bind(&handleReset, this) );
-	httpServer->on("/info",		std::bind(&handleInfo, this) );
-	httpServer->on("/exit",		std::bind(&handleExit, this) );
+	httpServer->onNotFound (	std::bind(&PR_IoT_HTTPportalClass::handleNotFound, this) );
+	httpServer->on("/",			std::bind(&PR_IoT_HTTPportalClass::handleRoot, this) );
+	httpServer->on("/reset",	std::bind(&PR_IoT_HTTPportalClass::handleReset, this) );
+	httpServer->on("/info",		std::bind(&PR_IoT_HTTPportalClass::handleInfo, this) );
+	httpServer->on("/exit",		std::bind(&PR_IoT_HTTPportalClass::handleExit, this) );
 	
 	
 	// add user pages here
 	
 	//from ESP8266_WiFiConnectionManager
-	httpServer->on("/wifiscan", std::bind(&::handleWifiScan, this));
-	httpServer->on("/wifisave", std::bind(&::handleWifiSave, this));
+	//httpServer->on("/wifiscan", std::bind(&::handleWifiScan, this));
+	//httpServer->on("/wifisave", std::bind(&::handleWifiSave, this));
 	
 	//from ESP8266_mqttConnectionManager
-	httpServer->on("/mqtt", 	std::bind(&PR_IoTConnectionManager::handleMqtt, this));
-	httpServer->on("/mqttsave", std::bind(&::handleMqttSave, this));
-	httpServer->on("/r", 		std::bind(&::handleReset, this));
+	//httpServer->on("/mqtt", 	std::bind(&PR_IoTConnectionManager::handleMqtt, this));
+	//httpServer->on("/mqttsave", std::bind(&::handleMqttSave, this));
+	//httpServer->on("/r", 		std::bind(&::handleReset, this));
 
 }
 
@@ -129,10 +136,10 @@ void PR_IoT_HTTPportalClass::handleRoot() {
 
 	static const char  F_ROOT[] PROGMEM	= \
 "<p>Portal standart pages:</p> \
-<p><a href=\"\info\">\info</a></p> \
-<p><a href=\"\reset\">\reset</a></p> \
-<p><a href=\"\exit\">\exit</a></p> \
-<p><a href=\"\index\">\index</a></p>";  
+<p><a href=\"/info\">  info</a> </p> \
+<p><a href=\"/reset\"> reset</a> </p> \
+<p><a href=\"/exit\">  exit</a> </p> \
+<p><a href=\"/index\"> index</a> </p>";  
   
 	DEBUG_WM(F("Handle root"));
 	
@@ -172,7 +179,7 @@ void PR_IoT_HTTPportalClass::handleReset() {
 	delay(2000);
 }
 
-void PR_IoTConnectionManager::handleExit() {
+void PR_IoT_HTTPportalClass::handleExit() {
 	
 	DEBUG_WM(F("Exit"));
  
@@ -186,7 +193,7 @@ void PR_IoT_HTTPportalClass::handleInfo() {
 
 	HTMLpageConstructorClass page("ESP8266 info");
 	
-	page.addBodyText( F("") );
+	page.addBodyText( F("vdhgsdfhdfjhgd") );
  	
 	
 	
